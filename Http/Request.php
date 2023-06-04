@@ -7,15 +7,24 @@ class Request implements Interfaces\IRequest
     protected array $data = [];
     protected string $method = '';
     protected array $headers = [];
+    protected array $cookies = [];
 
     public function __construct()
     {
         $this->method = strtolower($_SERVER['REQUEST_METHOD']);
         $this->data = $_REQUEST;
         $this->headers = getallheaders();
-        if($this->method != 'get')
+        $this->cookies = $_COOKIE;
+
+        if($this->method !== 'get')
         {
-            $this->data = array_merge($this->data, json_decode(file_get_contents('php://input'), true));
+            $content = file_get_contents('php://input');
+            if (strpos($this->getContentType(), 'application/json') !== false) {
+                $this->data = json_decode($content, true);
+            } else {
+                parse_str($content, $parsedData);
+                $this->data = array_merge($this->data, $parsedData);
+            }
         }
     }
 
@@ -26,7 +35,7 @@ class Request implements Interfaces\IRequest
 
     public function getHeader(string $name): string
     {
-        // TODO: Implement getHeader() method.
+        return $this->headers[$name] ?? '';
     }
 
     public function getMethod(): string
@@ -36,12 +45,12 @@ class Request implements Interfaces\IRequest
 
     public function getCookies(): array
     {
-        // TODO: Implement getCookies() method.
+        return $this->cookies;
     }
 
     public function getCookie(string $name): string
     {
-        // TODO: Implement getCookie() method.
+        return $this->cookies[$name] ?? '';
     }
 
     public function all(): array
@@ -51,6 +60,22 @@ class Request implements Interfaces\IRequest
 
     public function __get(string $name)
     {
-        return $this->data[$name];
+        return $this->data[$name] ?? null;
+    }
+
+    public function __set(string $name, mixed $value)
+    {
+        $this->data[$name] = $value;
+    }
+
+    private function getContentType(): string
+    {
+        foreach ($this->headers as $name => $value) {
+            if (strtolower($name) === 'content-type') {
+                return $value;
+            }
+        }
+
+        return '';
     }
 }

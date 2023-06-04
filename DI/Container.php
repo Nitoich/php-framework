@@ -2,9 +2,23 @@
 
 namespace Framework\DI;
 
+use Framework\DB\QueryBuilder;
+
 class Container implements IContainer
 {
-    private array $binds = [];
+    protected array $binds = [];
+    protected static ?IContainer $instance = null;
+    private function __construct() {}
+
+    public static function getInstance(): static
+    {
+        if(empty(static::$instance))
+        {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
 
     public function get(string $abstract): object
     {
@@ -29,6 +43,11 @@ class Container implements IContainer
         return new $abstract(...$attributes);
     }
 
+    public function build(string $abstract): Object
+    {
+        return $this->prepareObject($abstract);
+    }
+
     public function bind(string $abstract, object $instance): void
     {
         $this->binds[$abstract] = $instance;
@@ -42,5 +61,41 @@ class Container implements IContainer
     public function singleton(string $abstract, ...$args): void
     {
         $this->bind($abstract, new $abstract(...$args));
+    }
+
+    public function executeMethod(Object $class, string $method, ?array $primitives = null): mixed
+    {
+        $reflection = new \ReflectionClass($class);
+        $class_method = $reflection->getMethod($method);
+        $args = [];
+        $params = $class_method->getParameters();
+        foreach ($params as $param)
+        {
+            if(is_array($primitives) && isset($primitives[$param->getName()]))
+            {
+                $args[$param->getName()] = $primitives[$param->getName()];
+            } else {
+                $args[$param->getName()] = $this->get($param->getType());
+            }
+        }
+
+        return $class->$method(...$args);
+    }
+
+    public function executeClosure(\Closure $handler, ?array $primitives = null): mixed
+    {
+        $reflection = new \ReflectionFunction($handler);
+        $args = [];
+        $params = $reflection->getParameters();
+        foreach ($params as $param)
+        {
+            if(is_array($primitives) && isset($primitives[$param->getName()]))
+            {
+                $args[$param->getName()] = $primitives[$param->getName()];
+            } else {
+                $args[$param->getName()] = $this->get($param->getType());
+            }
+        }
+        return $handler(...$args);
     }
 }

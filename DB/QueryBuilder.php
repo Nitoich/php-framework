@@ -64,7 +64,7 @@ class QueryBuilder implements Interfaces\IQueryBuilder
         return $this->query;
     }
 
-    public function execute(): IDBResult
+    public function execute(): mixed
     {
         $driver = DBDriverProvider::getDriver($this->db_driver_id);
         return $driver->{$this->query->getOperation()}($this->query);

@@ -24,6 +24,6 @@ interface IQueryBuilder
     public function limit(int $count): static;
     public function offset(int $count): static;
     public function getQuery(): IQuery;
-    public function execute(): IDBResult;
+    public function execute(): mixed;
     public function get(): array;
 }

@@ -8,3 +8,5 @@ spl_autoload_register(function ($class_name) {
     }
 });
 
+$container = \Framework\DI\Container::getInstance();
+$container->bind(\Framework\Http\Interfaces\IRequest::class, new \Framework\Http\Request());

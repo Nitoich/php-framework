@@ -32,6 +32,7 @@ class Config implements Interfaces\IConfig
     {
         if(!file_exists($file_path)) { throw new \Exception('Config file not found!'); }
         $file_info = pathinfo($file_path);
+        if($file_info['extension'] != 'php') { throw new \Exception('File extension uncorrect!'); }
         $configs = include($file_path);
         static::$configs = array_replace_recursive(static::$configs, $configs);
     }

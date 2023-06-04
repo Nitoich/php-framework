@@ -2,8 +2,11 @@
 
 namespace Framework\DB\Drivers\MySQL;
 
+use Framework\DB\Drivers\MySQL\Interfaces\ISQLField;
 use Framework\DB\Interfaces\IDBResult;
 use Framework\DB\Interfaces\IQuery;
+use Framework\DB\Migrations\BaseField;
+use Framework\DB\Migrations\Migration;
 
 class MySQLDriver implements \Framework\DB\Interfaces\IDBDriver
 {
@@ -64,5 +67,64 @@ class MySQLDriver implements \Framework\DB\Interfaces\IDBDriver
                 $options[3],
                 $options[4]);
         }
+    }
+
+    public function create_table(Migration $migration): bool
+    {
+        $additions = [];
+        $sql = "CREATE TABLE IF NOT EXISTS {$migration->getTableName()} (";
+        echo "<pre>";
+//        var_dump($migration->getFields());
+        echo "</pre>";
+        foreach($migration->getFields() as $column => $types) {
+            $sql_types = [];
+            /** @var ISQLField $type */
+            foreach ($types as $type)
+            {
+                if($type->getSQLAdditionTable() != '')
+                {
+                    $additions[] = $type->getSQLAdditionTable();
+                }
+
+                if($type->getSQL() != '')
+                {
+                    $sql_types[] = $type->getSQL();
+                }
+            }
+            $sql_types = implode(' ', $sql_types);
+            $sql .= "$column $sql_types, ";
+        }
+
+        $sql .= implode(', ', $additions);
+
+//        $sql = rtrim($sql, ', ');
+        $sql .= ")";
+
+//        var_dump($sql);
+
+        $this->mysqli->query($sql);
+        return $this->mysqli->query($sql);
+    }
+
+    public function alter_table(Migration $migration): bool
+    {
+        // TODO: Implement alter_table() method.
+        return false;
+    }
+
+    public function drop_table(string $table_name): bool
+    {
+        // TODO: Implement drop_table() method.
+        return false;
+    }
+
+    public function show_tables(): IDBResult
+    {
+        // TODO: Implement show_tables() method.
+    }
+
+    public function show_table(string $table_name): IDBResult
+    {
+        // TODO: Implement show_table() method.
     }
 }
