@@ -3,31 +3,31 @@
 namespace Framework\Routing;
 
 use Framework\DI\Container;
-use Framework\Http\Interfaces\IRequest;
+use Framework\Http\Exceptions\HttpResponseException;
 use Framework\Http\Interfaces\IResponse;
 use Framework\Http\Request;
 use Framework\Http\Response;
-use Framework\Pipeline\Pipeline;
+use Framework\Routing\Middleware\MiddlewareProvider;
+use Framework\Routing\Middleware\MiddlewaresPipeline;
 
 class Route implements Interfaces\IRoute
 {
-    protected array $middlewares = [];
-
     public function __construct(
         protected string $path,
         protected string $method,
-        protected array|\Closure $handler
-    ) {}
+        protected array|\Closure $handler,
+        protected ?MiddlewaresPipeline $middlewares_pipeline = null
+    ) {
+        $this->middlewares_pipeline = new MiddlewaresPipeline();
+    }
 
     public function execute(?array $params = null): IResponse
     {
-        $pipeline = new Pipeline();
-        foreach ($this->middlewares as $middleware_id)
-        {
-            $middleware = MiddlewareProvider::get($middleware_id);
-            $pipeline->pipe($middleware);
-        }
-        $request = $pipeline->process(Container::getInstance()->get(Request::class));
+        /** @var Request $request */
+        $request = Container::getInstance()->get(Request::class);
+        $this->middlewares_pipeline->process($request, function (Response $response) {
+            throw new HttpResponseException($response);
+        });
 
         if(is_callable($this->handler))
         {
@@ -43,9 +43,9 @@ class Route implements Interfaces\IRoute
         return $this->path;
     }
 
-    public function middleware(string $middleware): static
+    public function middleware(string $middleware_id): static
     {
-        $this->middlewares[] = $middleware;
+        $this->middlewares_pipeline->pipe(MiddlewareProvider::get($middleware_id));
         return $this;
     }
 

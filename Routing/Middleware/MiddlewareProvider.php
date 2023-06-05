@@ -1,7 +1,8 @@
 <?php
 
-namespace Framework\Routing;
+namespace Framework\Routing\Middleware;
 
+use Framework\Routing\Interfaces;
 use Framework\Routing\Interfaces\IMiddleware;
 use Framework\Traits\IsCatalog;
 

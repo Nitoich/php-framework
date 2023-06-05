@@ -7,7 +7,7 @@ use Framework\Pipeline\Interfaces\IPipelineStage;
 class Pipeline
 {
     protected array $stages = [];
-    public function pipe(IPipelineStage $stage): static
+    public function pipe(PipelineStage $stage): static
     {
         $this->stages[] = $stage;
         return $this;

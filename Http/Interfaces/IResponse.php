@@ -8,4 +8,5 @@ interface IResponse
     public function getData(): mixed;
     public function json(mixed $data = null): static;
     public function setStatusCode(int $status): static;
+    public function getStatusCode(): int;
 }
