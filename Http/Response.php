@@ -17,6 +17,7 @@ class Response implements Interfaces\IResponse
 
     public function json(mixed $data = null): static
     {
+        header('Content-Type: application/json');
         if(empty($data)) {
             $data = $this->data;
         }

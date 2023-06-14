@@ -15,11 +15,41 @@ class Router implements \Framework\Routing\Interfaces\IRouter
         'delete' => [],
         'put' => []
     ];
+
+    private static string $prefix = '';
+
+    private static array $middlewares = [];
+
+    public static function clearMiddlewareAndPrefix(): void
+    {
+        static::$middlewares = [];
+        static::setPrefix('');
+    }
+
     public static function makeRoute(string $path, string $method, array|string|\Closure $handle): IRoute
     {
-        $route = new Route($path, $method, $handle);
-        static::$routes[strtolower($method)][$path] = $route;
+        $full_path = static::$prefix . $path;
+        if($full_path != '/') { $full_path = rtrim($full_path, '/'); }
+        $route = new Route($full_path, $method, $handle);
+        if(!empty(static::$middlewares))
+        {
+            foreach (static::$middlewares as $middleware)
+            {
+                $route->middleware($middleware);
+            }
+        }
+        static::$routes[strtolower($method)][$full_path] = $route;
         return $route;
+    }
+
+    public static function setPrefix(string $prefix): void
+    {
+        static::$prefix = $prefix;
+    }
+
+    public static function addMiddleware(string $middleware_id): void
+    {
+        static::$middlewares[] = $middleware_id;
     }
 
     public static function execute(string $execute_path, string $method = 'get'): IResponse
