@@ -4,6 +4,7 @@ namespace Framework\DB;
 
 use Framework\DB\Constants\QueryConditionLogicType;
 use Framework\DB\Constants\QueryOperations;
+use Framework\DB\Constants\QuerySigns;
 use Framework\DB\Constants\WhereTypes;
 use Framework\DB\Interfaces\IDBResult;
 use Framework\DB\Interfaces\IQuery;
@@ -25,6 +26,10 @@ class QueryBuilder implements Interfaces\IQueryBuilder
 
     public function where(callable|string $field, string $sign = null, string $value = null): static
     {
+        if($value == null) {
+            $value = $sign;
+            $sign = QuerySigns::EQUAL;
+        }
         $this->query->setCondition($field, $sign, $value);
         return $this;
     }
