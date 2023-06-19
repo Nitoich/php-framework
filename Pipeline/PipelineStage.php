@@ -2,10 +2,13 @@
 
 namespace Framework\Pipeline;
 
+use Framework\Http\Request;
+use Framework\Http\Response;
+
 abstract class PipelineStage
 {
-    public function __invoke(mixed $input): mixed
+    public function __invoke(Request $request, \Closure $next): Request|Response
     {
-        return $input;
+        return $next($request);
     }
 }

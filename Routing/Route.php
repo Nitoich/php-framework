@@ -14,6 +14,9 @@ use Framework\Routing\Traits\CanCreateRoute;
 class Route implements Interfaces\IRoute
 {
     use CanCreateRoute;
+
+    protected array $params = [];
+
     public function __construct(
         protected string $path = '',
         protected string $method = '',
@@ -23,20 +26,24 @@ class Route implements Interfaces\IRoute
         $this->middlewares_pipeline = new MiddlewaresPipeline();
     }
 
-    public function execute(?array $params = null): IResponse
+    public function setParams(array $params): void
+    {
+        $this->params = $params;
+    }
+
+    public function execute(Request $request): IResponse
     {
         /** @var Request $request */
-        $request = Container::getInstance()->get(Request::class);
         $this->middlewares_pipeline->process($request, function (Response $response) {
             throw new HttpResponseException($response);
         });
 
         if(is_callable($this->handler))
         {
-            $result = Container::getInstance()->executeClosure($this->handler, $params);
+            $result = (new Container())->executeClosure($this->handler, $this->params);
         } else {
-            $controller = Container::getInstance()->get($this->handler[0]);
-            $result = Container::getInstance()->executeMethod($controller, $this->handler[1], $params);
+            $controller = (new Container())->get($this->handler[0]);
+            $result = (new Container())->executeMethod($controller, $this->handler[1], $this->params);
         }
         if(is_object($result) && method_exists($result, 'getData')) {
             return $result;

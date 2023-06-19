@@ -7,18 +7,7 @@ use Framework\DB\QueryBuilder;
 class Container implements IContainer
 {
     protected array $binds = [];
-    protected static ?IContainer $instance = null;
-    private function __construct() {}
-
-    public static function getInstance(): static
-    {
-        if(empty(static::$instance))
-        {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
+    public function __construct() {}
 
     public function get(string $abstract): object
     {

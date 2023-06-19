@@ -2,12 +2,16 @@
 
 namespace Framework\Http;
 
+use Framework\Routing\Interfaces\IRoute;
+
 class Request implements Interfaces\IRequest
 {
     protected array $data = [];
     protected string $method = '';
     protected array $headers = [];
     protected array $cookies = [];
+    protected string $request_uri = '';
+    protected ?IRoute $route;
 
     public function __construct()
     {
@@ -15,6 +19,7 @@ class Request implements Interfaces\IRequest
         $this->data = $_REQUEST;
         $this->headers = getallheaders();
         $this->cookies = $_COOKIE;
+        $this->request_uri = $_SERVER['REQUEST_URI'];
 
         if($this->method !== 'get')
         {
@@ -26,6 +31,21 @@ class Request implements Interfaces\IRequest
                 $this->data = array_merge($this->data, $parsedData);
             }
         }
+    }
+
+    public function setRoute(IRoute $route): void
+    {
+        $this->route = $route;
+    }
+
+    public function getRoute(): IRoute
+    {
+        return $this->route;
+    }
+
+    public function getPath(): string
+    {
+        return $this->request_uri;
     }
 
     public function getHeaders(): array

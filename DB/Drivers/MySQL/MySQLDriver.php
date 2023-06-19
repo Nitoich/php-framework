@@ -73,9 +73,6 @@ class MySQLDriver implements \Framework\DB\Interfaces\IDBDriver
     {
         $additions = [];
         $sql = "CREATE TABLE IF NOT EXISTS {$migration->getTableName()} (";
-        echo "<pre>";
-//        var_dump($migration->getFields());
-        echo "</pre>";
         foreach($migration->getFields() as $column => $types) {
             $sql_types = [];
             /** @var ISQLField $type */

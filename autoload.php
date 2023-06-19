@@ -8,7 +8,7 @@ spl_autoload_register(function ($class_name) {
     }
 });
 
-\Framework\DI\Container::getInstance()->singleton(\Framework\Http\Request::class);
+$container = new \Framework\DI\Container();
 
 function response(mixed $data = null): \Framework\Http\Response
 {
