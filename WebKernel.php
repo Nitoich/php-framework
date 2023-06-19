@@ -31,7 +31,7 @@ class WebKernel
     public function processStage(Request $request)
     {
         $stage = array_shift($this->middlewares);
-        return $stage ? (new $stage)($request, $this->getNextClosure()) : $request;
+        return $stage ? (new $stage)($request, $this->getNextClosure()) : (new EndpointStage())($request, function (){});
     }
 
     protected function getNextClosure(): \Closure
@@ -46,15 +46,6 @@ class WebKernel
         $next = function (Request $request) {
             return $this->middlewares ? $this->processStage($request) : $request;
         };
-        return $this->endpoint(call_user_func($next, $request));
-    }
-
-    protected function endpoint(Request|Response $value): Response
-    {
-        if($value instanceof Response) {
-            return $value;
-        }
-        $route = $value->getRoute();
-        return $route->execute($value);
+        return call_user_func($next, $request);
     }
 }

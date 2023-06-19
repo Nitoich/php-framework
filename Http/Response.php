@@ -36,4 +36,8 @@ class Response implements Interfaces\IResponse
     {
         return $this->statusCode;
     }
+
+    public function __toString(): string {
+        return $this->data;
+    }
 }
