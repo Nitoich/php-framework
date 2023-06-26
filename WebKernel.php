@@ -3,24 +3,19 @@
 namespace Framework;
 
 use Framework\Exceptions\ExceptionHandler;
-use Framework\Exceptions\ExceptionManager;
-use Framework\Http\Exceptions\NotFoundException;
 use Framework\Http\Request;
 use Framework\Http\Response;
 use Framework\Pipeline\PipelineStage;
 use Framework\Routing\RouterMiddleware;
+use Framework\Support\Middlewares\IdToModelConverter;
 
 class WebKernel
 {
     protected array $middlewares = [
         ExceptionHandler::class,
-        RouterMiddleware::class
+        RouterMiddleware::class,
+        IdToModelConverter::class
     ];
-
-    public function __construct()
-    {
-
-    }
 
     public function pipe(PipelineStage $stage): static
     {
@@ -36,8 +31,8 @@ class WebKernel
 
     protected function getNextClosure(): \Closure
     {
-        return function ($payload) {
-            return $this->processStage($payload);
+        return function ($request) {
+            return $this->processStage($request);
         };
     }
 

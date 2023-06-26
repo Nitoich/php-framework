@@ -2,9 +2,13 @@
 
 namespace Framework\DB\ORM\Abstractions;
 
+use Framework\DB\ORM\Attributes\ComputedField;
+use Framework\DB\ORM\Attributes\UseTable;
+use Framework\Support\AttributeReader;
+
 abstract class Model implements \JsonSerializable
 {
-    public function __construct(array $fields)
+    public function __construct(array $fields = [])
     {
         foreach ($fields as $field => $value) {
             $this->$field = $value;
@@ -13,18 +17,14 @@ abstract class Model implements \JsonSerializable
 
     protected function getComputedFields(): array
     {
-        $reflection = new \ReflectionClass($this);
         $result = [];
-        foreach ($reflection->getMethods() as $method)
+        foreach (AttributeReader::get($this::class)['methods'] as $method => $attributes)
         {
-            foreach ($method->getAttributes() as $attribute)
+            foreach ($attributes as $attribute)
             {
-                if(strripos($attribute->getName(), 'ComputedField') !== false)
+                if($attribute instanceof ComputedField)
                 {
-                    foreach ($attribute->getArguments() as $argument)
-                    {
-                        $result[$method->getName()] = $argument;
-                    }
+                    $result[$method] = $attribute->getNeeded();
                 }
             }
         }
@@ -68,5 +68,11 @@ abstract class Model implements \JsonSerializable
 
     public function jsonSerialize(): array {
         return $this->toArray();
+    }
+
+    public static function getTableName(): string
+    {
+        $attributes = AttributeReader::get(static::class);
+        return $attributes['class'][UseTable::class]->getTableName();
     }
 }

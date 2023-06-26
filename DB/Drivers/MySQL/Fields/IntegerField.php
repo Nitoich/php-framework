@@ -15,6 +15,11 @@ class IntegerField extends BaseField implements ISQLField
         parent::__construct($name);
     }
 
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
     public function getSQL(): string
     {
         return "INT({$this->size})";

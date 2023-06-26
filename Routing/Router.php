@@ -27,6 +27,11 @@ class Router extends Container implements \Framework\Routing\Interfaces\IRouter
         static::setPrefix('');
     }
 
+    public static function getRoutes(): array
+    {
+        return self::$routes;
+    }
+
     public static function getRouteByPath(string $execute_path, string $method = 'get'): ?IRoute
     {
         $method = strtolower($method);

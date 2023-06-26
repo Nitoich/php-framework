@@ -9,9 +9,22 @@ class Container implements IContainer
     protected array $binds = [];
     public function __construct() {}
 
-    public function get(string $abstract): object
+    public function get(string $abstract): ?object
     {
-        return $this->binds[$abstract] ?? $this->prepareObject($abstract);
+        $abstract = str_replace('?', '', $abstract);
+        return key_exists($abstract, $this->binds) ? $this->binds[$abstract] : $this->prepareObject($abstract);
+    }
+
+    public function getMethodParameters(string $class, string $method): array
+    {
+        $reflection = new \ReflectionClass($class);
+        return $reflection->getMethod($method)->getParameters();
+    }
+
+    public function getClosureParameters(\Closure $handler): array
+    {
+        $reflection = new \ReflectionFunction($handler);
+        return $reflection->getParameters();
     }
 
     private function prepareObject(string $abstract): Object
@@ -37,7 +50,7 @@ class Container implements IContainer
         return $this->prepareObject($abstract);
     }
 
-    public function bind(string $abstract, object $instance): void
+    public function bind(string $abstract, ?object $instance): void
     {
         $this->binds[$abstract] = $instance;
     }
@@ -54,10 +67,8 @@ class Container implements IContainer
 
     public function executeMethod(Object $class, string $method, ?array $primitives = null): mixed
     {
-        $reflection = new \ReflectionClass($class);
-        $class_method = $reflection->getMethod($method);
         $args = [];
-        $params = $class_method->getParameters();
+        $params = $this->getMethodParameters($class::class, $method);
         foreach ($params as $param)
         {
             if(is_array($primitives) && isset($primitives[$param->getName()]))
@@ -73,9 +84,8 @@ class Container implements IContainer
 
     public function executeClosure(\Closure $handler, ?array $primitives = null): mixed
     {
-        $reflection = new \ReflectionFunction($handler);
         $args = [];
-        $params = $reflection->getParameters();
+        $params = $this->getClosureParameters($handler);
         foreach ($params as $param)
         {
             if(is_array($primitives) && isset($primitives[$param->getName()]))

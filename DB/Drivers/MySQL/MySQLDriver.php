@@ -7,6 +7,9 @@ use Framework\DB\Interfaces\IDBResult;
 use Framework\DB\Interfaces\IQuery;
 use Framework\DB\Migrations\BaseField;
 use Framework\DB\Migrations\Migration;
+use Framework\DB\ORM\Abstractions\Model;
+use Framework\DB\ORM\Attributes\UseTable;
+use Framework\Support\AttributeReader;
 
 class MySQLDriver implements \Framework\DB\Interfaces\IDBDriver
 {
@@ -69,11 +72,26 @@ class MySQLDriver implements \Framework\DB\Interfaces\IDBDriver
         }
     }
 
-    public function create_table(Migration $migration): bool
+    public function getTableNameFromModel(Model $model): string
+    {
+        $attributes = AttributeReader::get($model::class);
+        foreach ($attributes['class'] as $attribute)
+        {
+            if($attribute instanceof UseTable)
+            {
+                return $attribute->getTableName();
+            }
+        }
+        return '';
+    }
+
+    public function create_table(\Framework\DB\ORM\Abstractions\Model $model): bool
     {
         $additions = [];
-        $sql = "CREATE TABLE IF NOT EXISTS {$migration->getTableName()} (";
-        foreach($migration->getFields() as $column => $types) {
+        $table_name = $this->getTableNameFromModel($model);
+        $attributes = AttributeReader::get($model::class);
+        $sql = "CREATE TABLE IF NOT EXISTS {$table_name} (";
+        foreach($attributes['properties'] as $column => $types) {
             $sql_types = [];
             /** @var ISQLField $type */
             foreach ($types as $type)

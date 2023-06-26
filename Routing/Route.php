@@ -26,9 +26,19 @@ class Route implements Interfaces\IRoute
         $this->middlewares_pipeline = new MiddlewaresPipeline();
     }
 
+    public function getHandler(): array|\Closure
+    {
+        return $this->handler;
+    }
+
     public function setParams(array $params): void
     {
         $this->params = $params;
+    }
+
+    public function getParams(): array
+    {
+        return $this->params;
     }
 
     public function execute(Request $request): IResponse

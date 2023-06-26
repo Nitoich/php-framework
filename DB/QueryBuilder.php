@@ -40,6 +40,11 @@ class QueryBuilder implements Interfaces\IQueryBuilder
         return $this;
     }
 
+    public function first(): ?array
+    {
+        return $this->get()[0] ?? null;
+    }
+
     public function select(array $fields): static
     {
         $this->query->setSelectedFields($fields);

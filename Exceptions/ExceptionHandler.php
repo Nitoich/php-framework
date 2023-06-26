@@ -9,7 +9,7 @@ use Framework\Http\Response;
 
 class ExceptionHandler extends \Framework\Pipeline\PipelineStage
 {
-    public function __invoke(Request $request, \Closure $next): Request | Response
+    public function __invoke(Request $request, \Closure $next): Response
     {
         return ExceptionManager::expect(function () use ($request, $next) {
             return $next($request);

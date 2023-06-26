@@ -14,6 +14,11 @@ class StringField extends \Framework\DB\Migrations\BaseField implements ISQLFiel
         parent::__construct($name);
     }
 
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
     public function getSQL(): string
     {
         return "VARCHAR({$this->size})";

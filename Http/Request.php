@@ -2,6 +2,8 @@
 
 namespace Framework\Http;
 
+use App\Models\User;
+use Framework\DI\Container;
 use Framework\Routing\Interfaces\IRoute;
 
 class Request implements Interfaces\IRequest
@@ -12,6 +14,29 @@ class Request implements Interfaces\IRequest
     protected array $cookies = [];
     protected string $request_uri = '';
     protected ?IRoute $route;
+    protected array $params = [];
+    protected ?Container $container;
+
+    /**
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    /**
+     * @param array $params
+     */
+    public function setParams(array $params): void
+    {
+        $this->params = $params;
+    }
+
+    public function container(): Container
+    {
+        return $this->container;
+    }
 
     public function __construct()
     {
@@ -20,6 +45,7 @@ class Request implements Interfaces\IRequest
         $this->headers = getallheaders();
         $this->cookies = $_COOKIE;
         $this->request_uri = $_SERVER['REQUEST_URI'];
+        $this->container = new Container();
 
         if($this->method !== 'get')
         {

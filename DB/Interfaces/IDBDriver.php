@@ -3,6 +3,7 @@
 namespace Framework\DB\Interfaces;
 
 use Framework\DB\Migrations\Migration;
+use Framework\DB\ORM\Abstractions\Model;
 
 interface IDBDriver
 {
@@ -10,7 +11,7 @@ interface IDBDriver
     public function create(IQuery $query): int;
     public function delete(IQuery $query): void;
     public function update(IQuery $query): bool;
-    public function create_table(Migration $migration): bool;
+    public function create_table(Model $migration): bool;
     public function alter_table(Migration $migration): bool;
     public function drop_table(string $table_name): bool;
     public function show_tables(): IDBResult;
