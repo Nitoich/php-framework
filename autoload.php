@@ -8,9 +8,16 @@ spl_autoload_register(function ($class_name) {
     }
 });
 
-$container = new \Framework\DI\Container();
-
 function response(mixed $data = null): \Framework\Http\Response
 {
     return new \Framework\Http\Response($data);
+}
+
+$app = new \Framework\WebKernel();
+$app->setContainer(new \Framework\DI\Container());
+
+function app(): \Framework\WebKernel
+{
+    global $app;
+    return $app;
 }

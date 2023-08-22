@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use Framework\DI\Container;
 use Framework\Exceptions\ExceptionHandler;
 use Framework\Http\Request;
 use Framework\Http\Response;
@@ -11,11 +12,23 @@ use Framework\Support\Middlewares\IdToModelConverter;
 
 class WebKernel
 {
+    protected Container $container;
+
     protected array $middlewares = [
         ExceptionHandler::class,
         RouterMiddleware::class,
         IdToModelConverter::class
     ];
+
+    public function setContainer(Container $container): void
+    {
+        $this->container = $container;
+    }
+
+    public function getContainer(): Container
+    {
+        return $this->container;
+    }
 
     public function pipe(PipelineStage $stage): static
     {

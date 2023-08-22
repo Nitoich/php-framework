@@ -16,7 +16,7 @@ class IdToModelConverter extends \Framework\Pipeline\PipelineStage
     {
         $route_params = $request->getParams();
         $handler = $request->getRoute()->getHandler();
-        $container = new Container();
+        $container = app()->getContainer();
         if (is_array($handler)) {
             $parameters = $container->getMethodParameters($handler[0], $handler[1]);
         } else {
